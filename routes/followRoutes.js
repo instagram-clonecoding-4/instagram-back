@@ -3,8 +3,8 @@ const { followUser, unfollowUser, getFollowers, getFollowing } = require('../con
 
 const router = express.Router();
 
-router.post('/followUser/:userId', followUser);
-router.post('/unfollowUser/:userId', unfollowUser);
+router.post('/follow/:userId', followUser);
+router.delete('/follow/:userId', unfollowUser);
 router.get('/followers/:targetUserId', getFollowers);  
 router.get('/following/:targetUserId', getFollowing);  
 
