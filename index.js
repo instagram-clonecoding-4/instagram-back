@@ -9,7 +9,9 @@ app.use(express.json());
 
 const postRoutes = require('./routes/posts'); 
 const commentRoutes = require("./routes/comments");
+const likeRoutes = require("./routes/likes");
 
 app.use('/posts', postRoutes); 
 app.use("/comments", commentRoutes);
+app.use("/likes", likeRoutes);
 
