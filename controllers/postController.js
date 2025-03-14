@@ -10,10 +10,10 @@ const createPost = async (req, res) => {
     const files = req.files;
     if (!files || files.length === 0) return res.status(StatusCodes.BAD_REQUEST).end();
   
-    let connection;  // 여기서 connection 변수를 선언
+    let connection;
   
     try {
-      connection = await pool.getConnection(); // connection 초기화
+      connection = await pool.getConnection(); 
       await connection.beginTransaction();
   
       const [postResult] = await connection.query(
@@ -33,14 +33,12 @@ const createPost = async (req, res) => {
       await connection.commit();
       res.status(StatusCodes.CREATED).json({ post_id, urls: files.map((f) => f.location) });
     } catch (error) {
-      console.error("게시물 업로드 오류:", error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     } finally {
-      if (connection) connection.release(); // connection이 존재하면 release 호출
+      if (connection) connection.release();
     }
   };
   
-
 // 게시물 수정 API
 const updatePost = async (req, res) => {
     const { post_id } = req.params;
@@ -50,10 +48,10 @@ const updatePost = async (req, res) => {
     const files = req.files;
     if (!files || files.length === 0) return res.status(StatusCodes.BAD_REQUEST).end();
   
-    let connection;  // connection 변수 선언
+    let connection;
   
     try {
-      connection = await pool.getConnection();  // connection 초기화
+      connection = await pool.getConnection();  
       await connection.beginTransaction();
   
       if (body !== undefined) {
@@ -71,15 +69,13 @@ const updatePost = async (req, res) => {
       await connection.commit();
       res.status(StatusCodes.OK).json({ post_id, urls: files.map((f) => f.location) });
     } catch (error) {
-      console.error("게시물 수정 오류:", error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     } finally {
-      if (connection) connection.release();  // connection이 존재하면 release 호출
+      if (connection) connection.release();  
     }
   };
   
-
-// 게시물 조회 API
+// 게시물 상세 조회 API (받은 post_id에 해당하는 게시물 상세 조회)
 const getPost = async (req, res) => {
   const { post_id } = req.params;
 
@@ -109,8 +105,7 @@ const getPost = async (req, res) => {
       })),
     });
   } catch (error) {
-    console.error("게시물 조회 오류:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+       res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
   }
 };
 
@@ -118,10 +113,10 @@ const getPost = async (req, res) => {
 const deletePost = async (req, res) => {
     const { post_id } = req.params;
     
-    let connection;  // connection 변수 선언
+    let connection; 
   
     try {
-      connection = await pool.getConnection();  // connection 초기화
+      connection = await pool.getConnection();  
       await connection.beginTransaction();
   
       await connection.query("DELETE FROM contents WHERE post_id = ?", [post_id]);
@@ -130,17 +125,37 @@ const deletePost = async (req, res) => {
       await connection.commit();
       res.status(StatusCodes.OK).end();
     } catch (error) {
-      console.error("게시물 삭제 오류:", error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
     } finally {
-      if (connection) connection.release();  // connection이 존재하면 release 호출
+      if (connection) connection.release();  
     }
   };
   
+// 사용자별 게시물 조회
+const getPostByUser = async (req, res) => {
+  const { user_id } = req.query; // 쿼리 파라미터에서 user_id 추출
+
+  if (!user_id) {
+    return res.status(StatusCodes.BAD_REQUEST).end(); 
+  }
+
+  try {
+    const [posts] = await pool.query("SELECT * FROM posts WHERE user_id = ?", [user_id]);
+
+    if (posts.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).end(); 
+    }
+    return res.status(StatusCodes.OK).json(posts); 
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+  }
+};
+
 
 module.exports = {
   createPost,
   updatePost,
   getPost,
-  deletePost
+  deletePost,
+  getPostByUser,
 };
