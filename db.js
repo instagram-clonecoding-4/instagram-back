@@ -1,14 +1,21 @@
-const mysql = require('mysql2/promise');
-require('dotenv').config();
+// Get the client
+const mysql = require('mysql2');
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+// Create the connection to database
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'Instagram',
 });
 
-module.exports = pool;
+// A simple SELECT query
+connection.query(
+  'SELECT * FROM `users`',
+  function (err, results, fields) {
+    var {id, email, name} = results[0]; // json array 비구조화
+    console.log(id);
+    console.log(email);
+    console.log(name);
+  }
+);
