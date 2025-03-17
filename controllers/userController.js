@@ -40,6 +40,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+// 로그인
 exports.loginUser = async (req, res) => {
     let connection;
     try {
@@ -75,3 +76,31 @@ exports.loginUser = async (req, res) => {
       if (connection) connection.release();
     }
   };
+
+// 특정 회원 정보 조회
+exports.getUserInfo = async (req, res) => {
+let connection;
+try {
+    const { email } = req.params; 
+
+    connection = await pool.getConnection();
+
+
+    const [user] = await connection.query(
+    "SELECT id, name, email FROM users WHERE email = ?",
+    [email]
+    );
+
+    if (user.length === 0) {
+    return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    res.status(200).json(user[0]);
+
+} catch (error) {
+    res.status(500).json({ message: "서버 오류", error });
+    console.error(error);
+} finally {
+    if (connection) connection.release();
+}
+};
