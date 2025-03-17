@@ -1,6 +1,5 @@
 const express = require('express');
 const { followUser, unfollowUser, getFollowers, getFollowing } = require('../controllers/followController');
-
 const router = express.Router();
 
 router.post('/follow/:userId', followUser);

@@ -1,4 +1,4 @@
-const pool = require('../db.js');
+const pool = require('../mariadb.js');
 
 // 팔로우 기능
 exports.followUser = async (req, res) => {
@@ -71,7 +71,7 @@ exports.unfollowUser = async (req, res) => {
 };
 
 // 팔로워 목록 조회 
-exports.getUserFollowers = async (req, res) => {
+exports.getFollowers = async (req, res) => {
     try {
       const { targetUserId } = req.params;
   
@@ -94,7 +94,7 @@ exports.getUserFollowers = async (req, res) => {
   };
   
     // 팔로잉 목록 조회
-  exports.getUserFollowing = async (req, res) => {
+  exports.getFollowing = async (req, res) => {
     try {
       const { targetUserId } = req.params;
   
