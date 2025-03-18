@@ -1,4 +1,4 @@
-const pool = require('../mariadb.js');
+const pool = require('../config/mariadb.js');
 
 // 팔로우 기능 (email 기반)
 exports.followUser = async (req, res) => {

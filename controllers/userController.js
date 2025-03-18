@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const pool = require("../mariadb.js");
+const pool = require("../config/mariadb.js");
 require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
