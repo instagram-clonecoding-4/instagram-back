@@ -7,9 +7,9 @@ const JWT_SECRET = process.env.JWT_SECRET;
 exports.registerUser = async (req, res) => {
   let connection;
   try {
-    const { name, email, password } = req.body;
+    const { email, password, name, username } = req.body;
 
-    if (!name || !email || !password) {
+    if (!email || !password || !name || !username) {
       return res.status(400).json({ message: "모든 필드를 입력하세요." });
     }
 
@@ -25,20 +25,21 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "이미 가입된 이메일입니다." });
     }
 
-    // 회원 정보 저장
     await connection.query(
-      "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-      [name, email, password]
+      "INSERT INTO users (email, password, name, username) VALUES (?, ?, ?, ?)",
+      [email, password, name, username]
     );
 
     res.status(201).json({ message: "회원가입 성공!" });
 
   } catch (error) {
     res.status(500).json({ message: "서버 오류", error });
+    console.error(error);
   } finally {
     if (connection) connection.release();
   }
 };
+
 
 // 로그인
 exports.loginUser = async (req, res) => {
@@ -87,7 +88,7 @@ try {
 
 
     const [user] = await connection.query(
-    "SELECT id, name, email FROM users WHERE email = ?",
+    "SELECT * FROM users WHERE email = ?",
     [email]
     );
 

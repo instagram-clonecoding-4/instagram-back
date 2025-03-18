@@ -6,15 +6,12 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-const HOST = "0.0.0.0";
-const PORT = 7777;
-app.listen(PORT, HOST, () => {
-    console.log(`🚀 서버 실행 중: http://${HOST}:${PORT}`);
-  });
 app.use("/follow", followRoutes);
 app.use("/user", userRoutes);
+
+app.listen(7777, () => console.log("🚀 Server is running on http://localhost:7777"));
 
 module.exports = app; 
