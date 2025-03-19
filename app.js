@@ -2,9 +2,9 @@ require('dotenv').config();
 const express = require("express");
 const followRoutes = require("./routes/followRoutes");
 const userRoutes = require("./routes/userRoutes");
-const postRoutes = require("./routes/posts");
-const commentRoutes = require("./routes/comments");
-const likeRoutes = require("./routes/likes");
+const postRoutes = require("./routes/postRoutes");
+const commentRoutes = require("./routes/commentRoutes");
+const likeRoutes = require("./routes/likeRoutes");
 const cors = require("cors");
 
 const app = express();
