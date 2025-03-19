@@ -1,11 +1,10 @@
 const { StatusCodes } = require('http-status-codes');
 const pool = require("../config/mariadb");
-const upload = require("../config/s3");
 
 // 게시물 등록 API
 const createPost = async (req, res) => {
-  const { user_id, body } = req.body;
-  if (!user_id) return res.status(StatusCodes.BAD_REQUEST).end();
+  const { user_email, body } = req.body; 
+  if (!user_email) return res.status(StatusCodes.BAD_REQUEST).end();
   
   const files = req.files;
   if (!files || files.length === 0) return res.status(StatusCodes.BAD_REQUEST).end();
@@ -17,8 +16,8 @@ const createPost = async (req, res) => {
     await connection.beginTransaction();
   
     const [postResult] = await connection.query(
-      "INSERT INTO posts (user_id, body) VALUES (?, ?)",
-      [user_id, body || null]
+      "INSERT INTO posts (user_email, body) VALUES (?, ?)",
+      [user_email, body || null]
     );
     const post_id = postResult.insertId;
   
@@ -41,14 +40,14 @@ const createPost = async (req, res) => {
 
 // 사용자별 게시물 조회
 const getPostByUser = async (req, res) => {
-  const { user_id } = req.query; 
+  const { user_email } = req.query; 
   
-  if (!user_id) {
+  if (!user_email) {
     return res.status(StatusCodes.BAD_REQUEST).end(); 
   }
   
   try {
-    const [posts] = await pool.query("SELECT * FROM posts WHERE user_id = ?", [user_id]);
+    const [posts] = await pool.query("SELECT * FROM posts WHERE user_email = ?", [user_email]);
   
     if (posts.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).end(); 
@@ -61,15 +60,15 @@ const getPostByUser = async (req, res) => {
 
 // 팔로우한 사용자들의 게시물 조회
 const getFollowedPosts = async (req, res) => {
-  const { user_id } = req.query; 
+  const { user_email } = req.query; 
 
-  if (!user_id) {
+  if (!user_email) {
     return res.status(StatusCodes.BAD_REQUEST).end(); 
   }
 
   try {
     const [followedUsers] = await pool.query(`
-      SELECT following_id FROM follows WHERE follower_id = ?`, [user_id]);
+      SELECT following_id FROM follows WHERE follower_id = ?`, [user_email]);
     
     if (followedUsers.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).end(); 
@@ -78,7 +77,7 @@ const getFollowedPosts = async (req, res) => {
     const followedIds = followedUsers.map(user => user.following_id);
 
     const [posts] = await pool.query(
-      `SELECT * FROM posts WHERE user_id IN (?)`, [followedIds]);
+      `SELECT * FROM posts WHERE user_email IN (?)`, [followedIds]);
 
     if (posts.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).end();  
@@ -108,7 +107,7 @@ const getPost = async (req, res) => {
     res.status(StatusCodes.OK).json({
       post: {
         id: post[0].id,
-        user_id: post[0].user_id,
+        user_email: post[0].user_email,
         body: post[0].body,
         created_at: post[0].created_at,
         updated_at: post[0].updated_at,
@@ -127,8 +126,8 @@ const getPost = async (req, res) => {
 // 게시물 수정 API
 const updatePost = async (req, res) => {
   const { post_id } = req.params;
-  const { user_id, body } = req.body;
-  if (!user_id) return res.status(StatusCodes.BAD_REQUEST).end();
+  const { user_email, body } = req.body;
+  if (!user_email) return res.status(StatusCodes.BAD_REQUEST).end();
 
   const files = req.files;
   if (!files || files.length === 0) return res.status(StatusCodes.BAD_REQUEST).end();
@@ -181,7 +180,6 @@ const deletePost = async (req, res) => {
     if (connection) connection.release();  
   }
 };
-
 
 module.exports = {
   createPost,

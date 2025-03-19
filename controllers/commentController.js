@@ -4,16 +4,16 @@ const pool = require("../config/mariadb");
 // 댓글 생성
 const createComment = async (req, res) => {
   const { post_id } = req.params;
-  const { user_id, body } = req.body;
+  const { user_email, body } = req.body;
 
-  if (!user_id || !body) {
+  if (!user_email || !body) {
     return res.status(StatusCodes.BAD_REQUEST).end();
   }
 
   try {
     const connection = await pool.getConnection();
-    const query = "INSERT INTO comments (post_id, user_id, body) VALUES (?, ?, ?)";
-    const [result] = await connection.query(query, [post_id, user_id, body]);
+    const query = "INSERT INTO comments (post_id, user_email, body) VALUES (?, ?, ?)";
+    const [result] = await connection.query(query, [post_id, user_email, body]);
     connection.release();
 
     res.status(StatusCodes.CREATED).json({ comment_id: result.insertId });
