@@ -80,7 +80,7 @@ const getFollowedPosts = async (req, res) => {
 
   try {
     const [followedUsers] = await pool.query(`
-      SELECT following_id FROM follow WHERE follower_id = ?`, [user_id]);
+      SELECT folloingId FROM follow WHERE followerId = ?`, [user_id]);
     
     console.log("getFollowedPosts - followedUsers:", followedUsers);
 
@@ -88,7 +88,7 @@ const getFollowedPosts = async (req, res) => {
       return res.status(StatusCodes.NOT_FOUND).end(); 
     }
 
-    const followedIds = followedUsers.map(user => user.following_id);
+    const followedIds = followedUsers.map(user => user.folloingId);
     console.log("getFollowedPosts - followedIds:", followedIds);
 
     const [posts] = await pool.query(
