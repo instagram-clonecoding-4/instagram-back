@@ -80,7 +80,7 @@ const getFollowedPosts = async (req, res) => {
 
   try {
     const [followedUsers] = await pool.query(`
-      SELECT following_id FROM follows WHERE follower_id = ?`, [user_id]);
+      SELECT following_id FROM follow WHERE follower_id = ?`, [user_id]);
     
     console.log("getFollowedPosts - followedUsers:", followedUsers);
 
