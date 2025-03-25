@@ -3,10 +3,10 @@ const pool = require("../config/mariadb");
 
 // 게시물 등록 API
 const createPost = async (req, res) => {
-  const { user_email, body } = req.body; 
-  console.log("createPost - user_email:", user_email, "body:", body);
+  const { user_id, body } = req.body; 
+  console.log("createPost - user_id:", user_id, "body:", body);
   
-  if (!user_email) return res.status(StatusCodes.BAD_REQUEST).end();
+  if (!user_id) return res.status(StatusCodes.BAD_REQUEST).end();
   
   const files = req.files;
   if (!files || files.length === 0) {
@@ -21,8 +21,8 @@ const createPost = async (req, res) => {
     await connection.beginTransaction();
   
     const [postResult] = await connection.query(
-      "INSERT INTO posts (user_email, body) VALUES (?, ?)",
-      [user_email, body || null]
+      "INSERT INTO posts (user_id, body) VALUES (?, ?)",
+      [user_id, body || null]
     );
     const post_id = postResult.insertId;
     console.log("createPost - Inserted post_id:", post_id);
@@ -48,15 +48,15 @@ const createPost = async (req, res) => {
 
 // 사용자별 게시물 조회
 const getPostByUser = async (req, res) => {
-  const { user_email } = req.query; 
-  console.log("getPostByUser - user_email:", user_email);
+  const { user_id } = req.query; 
+  console.log("getPostByUser - user_id:", user_id);
   
-  if (!user_email) {
+  if (!user_id) {
     return res.status(StatusCodes.BAD_REQUEST).end(); 
   }
   
   try {
-    const [posts] = await pool.query("SELECT * FROM posts WHERE user_email = ?", [user_email]);
+    const [posts] = await pool.query("SELECT * FROM posts WHERE user_id = ?", [user_id]);
     console.log("getPostByUser - posts:", posts);
   
     if (posts.length === 0) {
@@ -71,16 +71,16 @@ const getPostByUser = async (req, res) => {
 
 // 팔로우한 사용자들의 게시물 조회
 const getFollowedPosts = async (req, res) => {
-  const { user_email } = req.query; 
-  console.log("getFollowedPosts - user_email:", user_email);
+  const { user_id } = req.query; 
+  console.log("getFollowedPosts - user_id:", user_id);
 
-  if (!user_email) {
+  if (!user_id) {
     return res.status(StatusCodes.BAD_REQUEST).end(); 
   }
 
   try {
     const [followedUsers] = await pool.query(`
-      SELECT following_id FROM follows WHERE follower_id = ?`, [user_email]);
+      SELECT following_id FROM follows WHERE follower_id = ?`, [user_id]);
     
     console.log("getFollowedPosts - followedUsers:", followedUsers);
 
@@ -92,7 +92,7 @@ const getFollowedPosts = async (req, res) => {
     console.log("getFollowedPosts - followedIds:", followedIds);
 
     const [posts] = await pool.query(
-      `SELECT * FROM posts WHERE user_email IN (?)`, [followedIds]);
+      `SELECT * FROM posts WHERE user_id IN (?)`, [followedIds]);
 
     console.log("getFollowedPosts - posts:", posts);
 
@@ -130,7 +130,7 @@ const getPost = async (req, res) => {
     res.status(StatusCodes.OK).json({
       post: {
         id: post[0].id,
-        user_email: post[0].user_email,
+        user_id: post[0].user_id,
         body: post[0].body,
         created_at: post[0].created_at,
         updated_at: post[0].updated_at,
@@ -150,12 +150,12 @@ const getPost = async (req, res) => {
 // 게시물 수정 API
 const updatePost = async (req, res) => {
   const { post_id } = req.params;
-  const { user_email, body } = req.body;
+  const { user_id, body } = req.body;
   const files = req.files;
 
-  console.log("updatePost - post_id:", post_id, "user_email:", user_email, "body:", body);
+  console.log("updatePost - post_id:", post_id, "user_id:", user_id, "body:", body);
   
-  if (!user_email) return res.status(StatusCodes.BAD_REQUEST).end();
+  if (!user_id) return res.status(StatusCodes.BAD_REQUEST).end();
   if (!files || files.length === 0) return res.status(StatusCodes.BAD_REQUEST).end();
   
   let connection;
