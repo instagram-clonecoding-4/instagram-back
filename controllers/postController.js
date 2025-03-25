@@ -211,11 +211,27 @@ const deletePost = async (req, res) => {
   }
 };
 
+// 모든 게시물 조회 API
+const getAllpost = async (req, res) => {
+  try{
+    const [posts] = await pool.query("SELECT * FROM posts ORDER BY created_at DESC");
+    if (posts.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).end();
+    }
+
+    return res.status(StatusCodes.OK).json(posts);
+  } catch (error) {
+    console.error("getAllpost - Error:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+  }
+}
+
 module.exports = {
   createPost,
   updatePost,
   getPost,
   deletePost,
   getPostByUser,
-  getFollowedPosts
+  getFollowedPosts,
+  getAllpost
 };

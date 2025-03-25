@@ -7,7 +7,8 @@ const {
   getPost,
   deletePost,
   getPostByUser,
-  getFollowedPosts
+  getFollowedPosts,
+  getAllpost
 } = require('../controllers/postController');
 
 
@@ -17,5 +18,6 @@ router.get("/followedposts", getFollowedPosts);                          // 팔�
 router.get("/:post_id", getPost);                                        // 게시물 상세 조회 API
 router.put("/:post_id", upload.array("content", 10), updatePost);        // 게시물 수정 API
 router.delete("/:post_id", deletePost);                                  // 게시물 삭제 API
+router.get("/all", getAllpost);                                          // 모든 게시물 조회 API
 
 module.exports = router;
