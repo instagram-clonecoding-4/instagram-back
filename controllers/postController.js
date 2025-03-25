@@ -215,6 +215,7 @@ const deletePost = async (req, res) => {
 const getAllpost = async (req, res) => {
   try{
     const [posts] = await pool.query("SELECT * FROM posts ORDER BY created_at DESC");
+    console.log("getAllPosts - posts:", posts);
     if (posts.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).end();
     }
