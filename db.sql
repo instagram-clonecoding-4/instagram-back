@@ -55,12 +55,12 @@ CREATE TABLE `likes` (
 CREATE TABLE `comments` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `post_id` INT(11) NOT NULL,
-  `user_id` INT(11) NOT NULL,
+  `user_email` varchar(45) NOT NULL,
   `body` TEXT,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `post_id_idx` (`post_id`),
   KEY `user_id_idx` (`user_id`),
   CONSTRAINT `comments_post_id_fk` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `comments_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `comments_user_email_fk` FOREIGN KEY (`user_email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
