@@ -2,6 +2,7 @@ const pool = require('../config/mariadb.js');
 
 // 팔로우 기능 (userId 기반)
 exports.followUser = async (req, res) => {
+  const connection = await pool.getConnection();
   try {
     const targetUserId = parseInt(req.params.userId, 10);
     const currentUserId = req.user.id;
@@ -10,8 +11,6 @@ exports.followUser = async (req, res) => {
       return res.status(400).json({ message: "본인은 팔로우할 수 없습니다." });
     }
 
-    const connection = await pool.getConnection();
-
     // 대상 사용자 존재 확인
     const [targetUser] = await connection.query(
       "SELECT id FROM users WHERE id = ?",
@@ -19,7 +18,6 @@ exports.followUser = async (req, res) => {
     );
 
     if (targetUser.length === 0) {
-      connection.release();
       return res.status(404).json({ message: "팔로우 대상 사용자를 찾을 수 없습니다." });
     }
 
@@ -30,7 +28,6 @@ exports.followUser = async (req, res) => {
     );
 
     if (existingFollow.length > 0) {
-      connection.release();
       return res.status(400).json({ message: "이미 팔로우하고 있습니다." });
     }
 
@@ -40,21 +37,21 @@ exports.followUser = async (req, res) => {
       [currentUserId, targetUserId]
     );
 
-    connection.release();
     res.status(200).json({ message: "팔로우 완료!" });
 
   } catch (error) {
     res.status(500).json({ message: "서버 오류", error });
+  } finally {
+    connection.release();
   }
 };
 
 // 언팔로우 기능 (userId 기반)
 exports.unfollowUser = async (req, res) => {
+  const connection = await pool.getConnection();
   try {
     const targetUserId = parseInt(req.params.userId, 10);
     const currentUserId = req.user.id;
-
-    const connection = await pool.getConnection();
 
     // 대상 사용자 존재 확인
     const [targetUser] = await connection.query(
@@ -63,7 +60,6 @@ exports.unfollowUser = async (req, res) => {
     );
 
     if (targetUser.length === 0) {
-      connection.release();
       return res.status(404).json({ message: "언팔로우 대상 사용자를 찾을 수 없습니다." });
     }
 
@@ -74,7 +70,6 @@ exports.unfollowUser = async (req, res) => {
     );
 
     if (follow.length === 0) {
-      connection.release();
       return res.status(400).json({ message: "팔로우한 사용자가 아닙니다." });
     }
 
@@ -84,20 +79,20 @@ exports.unfollowUser = async (req, res) => {
       [currentUserId, targetUserId]
     );
 
-    connection.release();
     res.status(200).json({ message: "언팔로우 완료!" });
 
   } catch (error) {
     res.status(500).json({ message: "서버 오류", error });
+  } finally {
+    connection.release();
   }
 };
 
 // 팔로워 목록 조회 (userId 기반)
 exports.getFollowers = async (req, res) => {
+  const connection = await pool.getConnection();
   try {
     const targetUserId = parseInt(req.params.userId, 10);
-
-    const connection = await pool.getConnection();
 
     const [targetUser] = await connection.query(
       "SELECT id FROM users WHERE id = ?",
@@ -105,7 +100,6 @@ exports.getFollowers = async (req, res) => {
     );
 
     if (targetUser.length === 0) {
-      connection.release();
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
@@ -117,20 +111,20 @@ exports.getFollowers = async (req, res) => {
       [targetUserId]
     );
 
-    connection.release();
     res.status(200).json({ followers });
 
   } catch (error) {
     res.status(500).json({ message: "서버 오류", error });
+  } finally {
+    connection.release();
   }
 };
 
 // 팔로잉 목록 조회 (userId 기반)
 exports.getFollowing = async (req, res) => {
+  const connection = await pool.getConnection();
   try {
     const targetUserId = parseInt(req.params.userId, 10);
-
-    const connection = await pool.getConnection();
 
     const [targetUser] = await connection.query(
       "SELECT id FROM users WHERE id = ?",
@@ -138,7 +132,6 @@ exports.getFollowing = async (req, res) => {
     );
 
     if (targetUser.length === 0) {
-      connection.release();
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
@@ -150,10 +143,11 @@ exports.getFollowing = async (req, res) => {
       [targetUserId]
     );
 
-    connection.release();
     res.status(200).json({ following });
 
   } catch (error) {
     res.status(500).json({ message: "서버 오류", error });
+  } finally {
+    connection.release();
   }
 };
