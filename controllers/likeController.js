@@ -4,9 +4,9 @@ const pool = require("../config/mariadb");
 // 좋아요 추가
 const addLike = async (req, res) => {
   const { post_id } = req.params;
-  const { user_email } = req.body;
+  const { user_id } = req.body;
 
-  if (!user_email) {
+  if (!user_id) {
     return res.status(StatusCodes.BAD_REQUEST).end();
   }
 
@@ -14,16 +14,16 @@ const addLike = async (req, res) => {
     const connection = await pool.getConnection();
 
     // 중복 좋아요 방지
-    const checkQuery = "SELECT * FROM likes WHERE post_id = ? AND user_email = ?";
-    const [existingLike] = await connection.query(checkQuery, [post_id, user_email]);
+    const checkQuery = "SELECT * FROM likes WHERE post_id = ? AND user_id = ?";
+    const [existingLike] = await connection.query(checkQuery, [post_id, user_id]);
 
     if (existingLike.length > 0) {
       connection.release();
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
 
-    const query = "INSERT INTO likes (post_id, user_email) VALUES (?, ?)";
-    await connection.query(query, [post_id, user_email]);
+    const query = "INSERT INTO likes (post_id, user_id) VALUES (?, ?)";
+    await connection.query(query, [post_id, user_id]);
     connection.release();
 
     res.status(StatusCodes.CREATED).end();
@@ -36,16 +36,16 @@ const addLike = async (req, res) => {
 // 좋아요 취소
 const removeLike = async (req, res) => {
   const { post_id } = req.params;
-  const { user_email } = req.body;
+  const { user_id } = req.body;
 
-  if (!user_email) {
+  if (!user_id) {
     return res.status(StatusCodes.BAD_REQUEST).end();
   }
 
   try {
     const connection = await pool.getConnection();
-    const query = "DELETE FROM likes WHERE post_id = ? AND user_email = ?";
-    const [result] = await connection.query(query, [post_id, user_email]);
+    const query = "DELETE FROM likes WHERE post_id = ? AND user_id = ?";
+    const [result] = await connection.query(query, [post_id, user_id]);
     connection.release();
 
     if (result.affectedRows === 0) {
@@ -66,7 +66,7 @@ const getLikes = async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const query = 
-    `SELECT l.user_email,
+    `SELECT l.user_id,
              (SELECT COUNT(*) FROM likes WHERE post_id = ?) AS like_count
       FROM likes l
       WHERE l.post_id = ?;`;
@@ -77,9 +77,9 @@ const getLikes = async (req, res) => {
     const like_count = rows.length > 0 ? rows[0].like_count : 0;
 
     // 좋아요 누른 사용자 ID 목록 
-    const user_emails = rows.map(row => row.user_email);
+    const user_ids = rows.map(row => row.user_id);
 
-    res.status(200).json({ like_count, user_emails });
+    res.status(200).json({ like_count, user_ids });
   } catch (error) {
     console.error("좋아요 목록 조회 오류:", error);
     res.status(500).end();

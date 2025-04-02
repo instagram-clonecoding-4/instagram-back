@@ -54,10 +54,6 @@ const getComments = async (req, res) => {
     const [comments] = await connection.query(query, [post_id]);
     connection.release();
 
-    if (comments.length === 0) {
-      return res.status(StatusCodes.NOT_FOUND).end();
-    }
-
     res.status(StatusCodes.OK).json({ comments });
   } catch (error) {
     console.error("댓글 조회 오류:", error);
